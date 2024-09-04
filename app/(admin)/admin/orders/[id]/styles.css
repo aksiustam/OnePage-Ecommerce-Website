@@ -1,0 +1,7 @@
+ul li {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+ul li span {
+  color: blue;
+}

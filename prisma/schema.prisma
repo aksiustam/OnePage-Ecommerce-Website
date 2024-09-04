@@ -1,0 +1,191 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "debian-openssl-1.0.x"]
+}
+
+model User {
+    id                 Int                  @id @default(autoincrement())
+    name               String?
+    lastname           String?
+    email              String               @unique
+    code               String?
+    emailVerified      Boolean?             @default(false)
+    tel                String?
+    identityNumber     String?
+    newscheck          Boolean?
+    password           String
+    createdAt          DateTime?            @default(now())
+    updatedAt          DateTime?            @updatedAt
+    Role               Role                 @default(USER)
+    Account            Account[]
+    Address            Address[]
+    SiparisOrder       SiparisOrder[]
+    SiparisOrderFinish SiparisOrderFinish[]
+
+    @@index([email])
+}
+
+model Address {
+    id         Int     @id @default(autoincrement())
+    adressname String?
+    address    String?
+    country    String?
+    city       String?
+    zipCode    String?
+    User       User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId     Int?
+}
+
+model Product {
+    id          Int       @id @default(autoincrement())
+    name        String
+    slug        String    @unique
+    desc        String?
+    price       Json?
+    Category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    categoryId  Int
+    indirimsize String?
+    indirim     Boolean?
+    ilk         Boolean?
+    yeni        Boolean?
+    kilo        Int?
+    stock       Int?
+    images      Json?
+    onclick     Int?
+    archive     Boolean?
+    quill       Json?
+    sells       Int?
+    createdAt   DateTime? @default(now())
+    updatedAt   DateTime? @updatedAt
+
+    @@index([slug])
+}
+
+model SubCategory {
+    id       Int      @id @default(autoincrement())
+    index    Int?
+    name     String?
+    slug     String   @unique
+    imageid  String?
+    imageurl String?
+    archive  Boolean?
+}
+
+model Category {
+    id       Int       @id @default(autoincrement())
+    index    Int?
+    name     String
+    slug     String    @unique
+    imageid  String?
+    imageurl String?
+    archive  Boolean?
+    Product  Product[]
+
+    @@index([slug])
+}
+
+model SiparisOrder {
+    id             Int       @id @default(autoincrement())
+    conversationId String?
+    basketId       String?   @unique
+    name           String?
+    surname        String?
+    email          String?
+    identityNumber String?
+    note           String?
+    tel            String?
+    billadress     Json?
+    sendadress     Json?
+    basket         Json?
+    amount         Float?
+    status         String?
+    createdAt      DateTime? @default(now())
+    updatedAt      DateTime? @updatedAt
+    User           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId         Int?
+
+    @@index([basketId])
+}
+
+model SiparisOrderFinish {
+    id             Int       @id @default(autoincrement())
+    conversationId String?
+    basketId       String?   @unique
+    paymentId      String?
+    email          String?
+    userinfo       Json?
+    billadress     Json?
+    sendadress     Json?
+    basket         Json?
+    amount         Float?
+    note           String?
+    status         String?
+    paymentStatus  String?
+    sendmail       String?
+    token          String?
+    error          String?
+    createdAt      DateTime? @default(now())
+    updatedAt      DateTime? @updatedAt
+    User           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId         Int?
+
+    @@index([basketId])
+}
+
+model Contact {
+    id    Int     @id @default(autoincrement())
+    name  String?
+    email String?
+    konu  String?
+    not   String?
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model Ayarlar {
+    id           Int     @id
+    desc         String?
+    keywords     String?
+    banner       Json?
+    discountset  Json?
+    discountpage Json?
+    settings     Json?
+}
+
+model Referans {
+    id       Int     @id @default(autoincrement())
+    index    Int?
+    name     String?
+    imageid  String?
+    imageurl String?
+}
+
+model Account {
+    id                       String  @id @default(cuid())
+    userId                   Int     @unique
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String? @db.Text
+    access_token             String? @db.Text
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String? @db.Text
+    session_state            String?
+    refresh_token_expires_in Int?
+    User                     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
+}
